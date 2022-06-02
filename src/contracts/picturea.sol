@@ -19,6 +19,8 @@ contract Picturea {
     uint internal picturesLength = 0;
     address internal cUsdTokenAddress = 0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1;
 
+    event CreatePictureEvent(address indexed owner, uint pictureId);
+
     struct Picture {
         address payable owner;
         string image;
@@ -29,6 +31,7 @@ contract Picturea {
 
     mapping (uint => Picture) internal pictures;
 
+    // create a new picture
     function addPicture(
         string memory _image,
         string memory _description, 
@@ -42,9 +45,11 @@ contract Picturea {
             _price,
             _sold
         );
+        emit CreatePictureEvent(msg.sender, picturesLength);
         picturesLength++;
     }
 
+    // get picture at index `_index`
     function getPicture(uint _index) public view returns (
         address payable, 
         string memory, 
@@ -61,7 +66,9 @@ contract Picturea {
           
         );
     }
-    
+
+
+    // buy picture at index `_index`
     function buyPicture(uint _index) public payable  {
         require(
           IERC20Token(cUsdTokenAddress).transferFrom(
@@ -73,7 +80,8 @@ contract Picturea {
         );
         pictures[_index].sold++;
     }
-    
+
+    // return total count of pictures
     function getPicturesLength() public view returns (uint) {
         return (picturesLength);
     }

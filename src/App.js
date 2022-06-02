@@ -84,7 +84,7 @@ function App() {
           owner: picture[0],
           image: picture[1],
           description: picture[2],
-          price: picture[3],
+          price: new BigNumber(picture[3]),
           sold: picture[4]   
         });
       });
@@ -104,8 +104,9 @@ function App() {
  
   ) => {
     try {
+      let price = new BigNumber(_price).shiftedBy(ERC20_DECIMALS).toString();
       await contract.methods
-        .addPicture(_image, _description, _price)
+        .addPicture(_image, _description, price)
         .send({ from: address });
       getPictures();
     } catch (error) {
@@ -117,13 +118,12 @@ function App() {
   const buyPicture = async (_index) => {
     try {
       const cUSDContract = new kit.web3.eth.Contract(IERC, cUSDContractAddress);
-      const cost = new BigNumber(pictures[_index].price)
-        .shiftedBy(ERC20_DECIMALS)
-        .toString();
+      const cost = pictures[_index].price
+        
       await cUSDContract.methods
         .approve(contractAddress, cost)
         .send({ from: address });
-      await contract.methods.buyPicture(_index, cost).send({ from: address });
+      await contract.methods.buyPicture(_index).send({ from: address });
       getPictures();
       getBalance();
       alert("you have successfully donated to the writer");
@@ -151,7 +151,7 @@ function App() {
   return (
     <div className="App">
       <NavigationBar cUSDBalance={cUSDBalance} />
-      <Pictures pictures={pictures} buyPicture={buyPicture}/>
+      <Pictures pictures={pictures} buyPicture={buyPicture} userWa={address}/>
       <AddPicture addPicture={addPicture} />
     </div>
   );

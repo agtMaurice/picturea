@@ -10,7 +10,7 @@ export const Pictures = (props) => {
 
 {props.pictures.map((pic) =>(
     <div class="card" >
-    <img class="card-img-top m-2" src={pic.image} alt="Card image cap" />
+    <img class="card-img-top" src={pic.image} alt="Card image cap" />
     <div class="card-body">
       <h5 class="card-title">{pic.sold} Copies Sold</h5>
       <p class="card-text">{pic.description}</p>

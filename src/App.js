@@ -16,12 +16,11 @@ import Picturea from "./contracts/picturea.abi.json";
 import IERC from "./contracts/IERC.abi.json";
 
 
-
 const ERC20_DECIMALS = 18;
 
 
 
-const contractAddress = "0xe02F9f6460F78588518fEF0e7128ACbBa4a99996";
+const contractAddress = "0xe91F0323aF3b10B44DC94233767B15fE772e8763";
 const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1";
 
 
@@ -44,7 +43,6 @@ function App() {
 
         const accounts = await kit.web3.eth.getAccounts();
         const user_address = accounts[0];
-
         kit.defaultAccount = user_address;
 
         await setAddress(user_address);
@@ -103,9 +101,36 @@ function App() {
     _price,
  
   ) => {
+    let price = new BigNumber(_price).shiftedBy(ERC20_DECIMALS).toString();
     try {
       await contract.methods
-        .addPicture(_image, _description, _price)
+        .addPicture(_image, _description, price)
+        .send({ from: address });
+      getPictures();
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  const modifyPrice = async (_index, _price) => { 
+    const price = new BigNumber(_price).shiftedBy(ERC20_DECIMALS).toString();
+    try {
+      await contract.methods.changePrice(_index, price).send({ from: address });
+      getPictures();
+      alert("you have successfully changed the price");
+     
+    } catch (error) {
+      alert(error);
+    }};
+
+
+
+  const deletePicture = async (
+    _index
+  ) => {
+    try {
+      await contract.methods
+        .deletePicture(_index)
         .send({ from: address });
       getPictures();
     } catch (error) {
@@ -117,13 +142,11 @@ function App() {
   const buyPicture = async (_index) => {
     try {
       const cUSDContract = new kit.web3.eth.Contract(IERC, cUSDContractAddress);
-      const cost = new BigNumber(pictures[_index].price)
-        .shiftedBy(ERC20_DECIMALS)
-        .toString();
+      const cost = pictures[_index].price;
       await cUSDContract.methods
         .approve(contractAddress, cost)
         .send({ from: address });
-      await contract.methods.buyPicture(_index, cost).send({ from: address });
+      await contract.methods.buyPicture(_index).send({ from: address });
       getPictures();
       getBalance();
       alert("you have successfully donated to the writer");
@@ -151,7 +174,7 @@ function App() {
   return (
     <div className="App">
       <NavigationBar cUSDBalance={cUSDBalance} />
-      <Pictures pictures={pictures} buyPicture={buyPicture}/>
+      <Pictures pictures={pictures} buyPicture={buyPicture} walletAddress={address} modifyPrice={modifyPrice} deletePicture={deletePicture}/>
       <AddPicture addPicture={addPicture} />
     </div>
   );

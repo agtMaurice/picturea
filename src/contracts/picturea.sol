@@ -29,6 +29,8 @@ contract Picturea {
 
     mapping (uint => Picture) internal pictures;
 
+
+// to add a new picture to the list
     function addPicture(
         string memory _image,
         string memory _description, 
@@ -45,6 +47,39 @@ contract Picturea {
         picturesLength++;
     }
 
+      // to delete a picture from the list
+        function deletePicture(uint _index) external {
+	        require(msg.sender == pictures[_index].owner, "can't delete picture");         
+            pictures[_index] = pictures[picturesLength - 1];
+            delete pictures[picturesLength - 1];
+            picturesLength--; 
+	 }
+
+// to change the price of a picture in the list
+         function changePrice(uint _index, uint _newPrice) public {
+        require(msg.sender == pictures[_index].owner, "Only owner can change the price");
+        pictures[_index].price = _newPrice;
+    }
+// to edit picture in the list
+    function editPicture(
+        uint256 _index,
+        string memory _image,
+        string memory _description
+    ) public {
+        require(msg.sender == pictures[_index].owner, "Only owner can change edit");
+        uint _price = pictures[_index].price;
+        uint _sold = pictures[_index].sold;
+        pictures[_index] = Picture(
+            payable(msg.sender),
+            _image,
+            _description,
+            _price,
+            _sold
+        );
+    }
+
+
+// to get pictures from the list
     function getPicture(uint _index) public view returns (
         address payable, 
         string memory, 
@@ -61,7 +96,9 @@ contract Picturea {
           
         );
     }
-    
+
+
+    // to buy a picture
     function buyPicture(uint _index) public payable  {
         require(
           IERC20Token(cUsdTokenAddress).transferFrom(
@@ -73,7 +110,9 @@ contract Picturea {
         );
         pictures[_index].sold++;
     }
+
     
+    // to get the length of a picture
     function getPicturesLength() public view returns (uint) {
         return (picturesLength);
     }

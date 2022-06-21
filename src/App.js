@@ -149,7 +149,7 @@ function App() {
       await contract.methods.buyPicture(_index).send({ from: address });
       getPictures();
       getBalance();
-      alert("you have successfully donated to the writer");
+      alert("you have successfully bought this image");
     } catch (error) {
       alert(error);
     }};
